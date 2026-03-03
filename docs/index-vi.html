@@ -745,8 +745,9 @@
                     <span style="color:#94a3b8;font-size:0.8rem;margin-left:8px;">root@vps ~</span>
                 </div>
                 <div class="terminal-body">
-                    <span class="prompt">$</span> <span class="cmd">curl -sL https://qltro.com/vps/scripts/install.sh |
-                        bash</span><br>
+                    <span class="prompt">$</span> <span class="cmd">curl -sO
+                        https://raw.githubusercontent.com/hugnanastore-eng/vps-manager/main/scripts/install.sh && bash
+                        install.sh</span><br>
                     <span class="output">Enter domains: </span><span class="cmd">shop1.com,shop2.com</span><br>
                     <span class="output">[SETUP] Detected: Rocky Linux 9</span><br>
                     <span class="output">[SETUP] Installing Nginx + PHP 8.1 + MariaDB...</span><br>
@@ -764,64 +765,70 @@
 
     <!-- Features -->
     <section class="section scroll-reveal" id="features">
-        <span class="section-label">Tính năng</span>
-        <h2>Tất Cả Trong 1 Script</h2>
-        <p class="section-desc">Không cần cài từng phần, không cần config thủ công. Script xử lý mọi thứ.</p>
+        <span class="section-label">Tính năng nổi bật</span>
+        <h2>Không Chỉ Là Script — Đây Là Bộ Công Cụ Toàn Diện</h2>
+        <p class="section-desc">Từ backup database hàng GB đến tự tối ưu WordPress, mọi thứ đều chạy tự động. Không cần
+            kiến thức sysadmin.</p>
 
         <div class="features-grid">
             <div class="feature-card">
-                <div class="feature-icon blue">🌐</div>
-                <h3>Multi-site WordPress</h3>
-                <p>Tạo không giới hạn website trên 1 VPS. Tự động cài WordPress, tạo database, cấu hình Nginx, SSL — chỉ
-                    cần nhập tên domain.</p>
-            </div>
-            <div class="feature-card">
-                <div class="feature-icon green">🛡️</div>
-                <h3>WAF & Bảo Mật</h3>
-                <p>Tường lửa ứng dụng web (WAF) chặn SQL injection, XSS, path traversal. Kết hợp fail2ban + security
-                    headers + file integrity monitor.</p>
+                <div class="feature-icon orange">💾</div>
+                <h3>Backup & Restore Database Hàng GB</h3>
+                <p>Dump MySQL <strong>chia theo từng bảng</strong> — không sợ file hỏng khi backup database lớn vài GB.
+                    Tự kiểm tra tính toàn vẹn (integrity check), retry nếu lỗi. Restore từ thư mục hoặc file đơn.</p>
             </div>
             <div class="feature-card">
                 <div class="feature-icon purple">⚡</div>
-                <h3>Performance Tối Ưu</h3>
-                <p>OPcache 256MB, gzip level 6, browser cache 365 ngày, PHP-FPM auto-tuning theo RAM. Đạt TTFB &lt; 0.5s
-                    cho WooCommerce.</p>
-            </div>
-            <div class="feature-card">
-                <div class="feature-icon orange">🔄</div>
-                <h3>Backup Tự Động</h3>
-                <p>Backup database + configs hàng ngày. Sync cross-VPS cho redundancy. Malware scan file PHP. Giữ 7 ngày
-                    backup tự xoá cũ.</p>
-            </div>
-            <div class="feature-card">
-                <div class="feature-icon cyan">📡</div>
-                <h3>Telegram Monitoring</h3>
-                <p>Cảnh báo real-time qua Telegram: site down, file bị sửa đổi, backup lỗi, update thành công/rollback.
-                    Kiểm tra mỗi 5 phút.</p>
-            </div>
-            <div class="feature-card">
-                <div class="feature-icon red">🔗</div>
-                <h3>VPS Cluster Sync</h3>
-                <p>Liên kết nhiều VPS thành cluster. Sync backup, config, migrate site giữa các VPS. Health check toàn
-                    bộ cluster từ bất kỳ node nào.</p>
+                <h3>Tự Tối Ưu WordPress</h3>
+                <p>OPcache 256MB, PHP-FPM <strong>auto-tuning theo RAM</strong>, gzip level 6, browser cache 365 ngày,
+                    FastCGI Cache. WooCommerce đạt <strong>TTFB &lt; 0.5s</strong>. DB Deep Optimizer dọn transients +
+                    revisions tự động.</p>
             </div>
             <div class="feature-card">
                 <div class="feature-icon red">🔍</div>
-                <h3>Malware Scanner 12 Bước</h3>
-                <p>Quét WPCode snippets, backdoor, file ẩn, shell injection, uploads malware, wp-config tampering,
-                    cron injection, fake admin users — tự động xóa mã độc.</p>
+                <h3>Quét Malware 12 Bước</h3>
+                <p>Quét backdoor, WPCode snippets, shell injection, uploads bất thường, wp-config bị sửa, cron
+                    injection, fake admin — <strong>tự động xóa mã độc</strong>. Chạy ngay từ menu hoặc lệnh.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon green">🛡️</div>
+                <h3>Security Audit + WAF</h3>
+                <p>Kiểm tra <strong>15 components</strong> chỉ 1 lệnh. WAF chặn SQL injection, XSS, path traversal.
+                    Firewall 7 bước, fail2ban 5 jails, SSH hardening. <strong>39 input validations</strong> chống
+                    injection.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon blue">🌐</div>
+                <h3>Multi-site WordPress — Chọn Domain Từ Danh Sách</h3>
+                <p>Tạo vô hạn website. Khi thao tác, <strong>không cần gõ tên domain</strong> — script hiện danh sách
+                    kèm status HTTP, bạn chỉ chọn số thứ tự. Tự động cài WordPress + DB + Nginx + SSL.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon cyan">📡</div>
+                <h3>Telegram Monitoring Real-time</h3>
+                <p>Cảnh báo ngay qua Telegram khi: site down, file bị sửa, backup lỗi, update xong. Health check mỗi 5
+                    phút. Chạy <strong>remote command từ Telegram</strong>.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon red">🔗</div>
+                <h3>VPS Cluster — Migrate Giữa Các VPS</h3>
+                <p>Liên kết nhiều VPS thành cluster. <strong>Migrate site hoàn chỉnh</strong> (files + DB + nginx
+                    config) giữa các VPS chỉ 1 lệnh. Sync backup, health check toàn bộ cluster.</p>
             </div>
             <div class="feature-card">
                 <div class="feature-icon orange">🔥</div>
-                <h3>Firewall Hardening</h3>
-                <p>Kernel tuning SYN flood, UFW/firewalld auto-config, fail2ban 5 jails, SSH hardening, Nginx DDoS
-                    protection, auto-update OS, change root password.</p>
+                <h3>Firewall Hardening 7 Bước</h3>
+                <p>Kernel tuning SYN flood, UFW auto-config, DDoS rate-limiting, auto-update OS. Đổi root password an
+                    toàn. Tất cả chạy <strong>1 lệnh duy nhất</strong>: <code
+                        style="background:#1e293b;padding:2px 6px;border-radius:4px;font-size:0.8rem">vps-update firewall</code>
+                </p>
             </div>
             <div class="feature-card">
                 <div class="feature-icon purple">🌐</div>
-                <h3>Multi-IP Management</h3>
-                <p>VPS có nhiều IP? Gán IP riêng cho từng website qua nginx listen directive. Hiện tất cả IPs,
-                    bind/unbind, verify. Auto-backup + rollback.</p>
+                <h3>Multi-IP — Gán IP Riêng Cho Site</h3>
+                <p>VPS nhiều IP? Gán IP riêng cho từng website. Hiện tất cả IPs, bind/unbind, verify —
+                    <strong>auto-backup config trước khi đổi</strong>. SEO tốt hơn khi mỗi site có IP riêng.
+                </p>
             </div>
         </div>
     </section>
@@ -866,7 +873,7 @@
                     <tr>
                         <td>Menu quản trị SSH</td>
                         <td><span class="check">✓</span></td>
-                        <td><span class="check">✓</span> 9 menu có màu</td>
+                        <td><span class="check">✓</span> 12 menu có màu</td>
                     </tr>
                     <tr>
                         <td>WAF tường lửa web</td>
@@ -932,7 +939,7 @@
     <!-- Admin Menu -->
     <section class="section scroll-reveal" id="admin">
         <span class="section-label">Quản trị</span>
-        <h2>11 Menu Quản Trị Chuyên Nghiệp</h2>
+        <h2>12 Menu Quản Trị Chuyên Nghiệp</h2>
         <p class="section-desc">Gõ <code
                 style="background:#1e293b;padding:2px 8px;border-radius:4px;font-family:'JetBrains Mono',monospace">vps-admin</code>
             trong SSH để mở menu tương tác đầy màu sắc.</p>
@@ -1016,6 +1023,13 @@
                     <p>Hiện tất cả IPs, gán IP cho site, gỡ binding, verify connections qua từng IP</p>
                 </div>
             </div>
+            <div class="menu-item">
+                <span class="menu-num">12</span>
+                <div>
+                    <h4>🚀 VPS Update</h4>
+                    <p>Smart install, cập nhật scripts, security audit, malware scan, firewall hardening</p>
+                </div>
+            </div>
         </div>
     </section>
 
@@ -1030,7 +1044,7 @@
                 <div class="step-number">1</div>
                 <h3>Chạy lệnh cài đặt</h3>
                 <p>SSH vào VPS, chạy 1 lệnh duy nhất. Script tự detect và cài đặt.</p>
-                <code>curl -sL https://qltro.com/api/vps-download | bash</code>
+                <code>curl -sO https://raw.githubusercontent.com/hugnanastore-eng/vps-manager/main/scripts/install.sh && bash install.sh</code>
             </div>
             <div class="step">
                 <div class="step-number">2</div>
