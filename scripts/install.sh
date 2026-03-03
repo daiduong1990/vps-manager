@@ -1231,10 +1231,67 @@ do_update() {
     # Save component state
     save_component_state
 
+    # Post-update health check
+    log "Running post-update health check..."
+    local _hc_ok=0 _hc_fail=0
+
+    # Check critical services
+    for _svc in nginx php-fpm mariadb; do
+        if systemctl is-active --quiet "$_svc" 2>/dev/null; then
+            ((_hc_ok++))
+        else
+            # Try to restart
+            systemctl restart "$_svc" 2>/dev/null
+            sleep 2
+            if systemctl is-active --quiet "$_svc" 2>/dev/null; then
+                log "⚠ ${_svc} was down, restarted OK"
+                ((_hc_ok++))
+            else
+                log "✗ ${_svc} FAILED to restart!"
+                ((_hc_fail++))
+            fi
+        fi
+    done
+
+    # Check nginx config syntax
+    if nginx -t 2>/dev/null; then
+        ((_hc_ok++))
+    else
+        log "✗ nginx config syntax error!"
+        ((_hc_fail++))
+    fi
+
+    # Check sites return HTTP 200
+    local _sites_ok=0 _sites_total=0
+    for _conf in /etc/nginx/conf.d/*.conf; do
+        [ -f "$_conf" ] || continue
+        local _sn=$(grep -m1 'server_name' "$_conf" 2>/dev/null | sed 's/server_name//;s/;//' | awk '{print $1}')
+        [ -z "$_sn" ] || [[ "$_sn" == "staging."* ]] && continue
+        ((_sites_total++))
+        local _http_code=$(curl -so /dev/null -w "%{http_code}" --max-time 5 "http://localhost" -H "Host: $_sn" 2>/dev/null)
+        if [[ "$_http_code" =~ ^(200|301|302|304)$ ]]; then
+            ((_sites_ok++))
+        fi
+    done
+
+    if [ $_hc_fail -eq 0 ]; then
+        log "✓ Health check passed (${_hc_ok} services OK, ${_sites_ok}/${_sites_total} sites responding)"
+    else
+        log "⚠ Health check: ${_hc_fail} service(s) have issues!"
+    fi
+
+    # Anonymous install/update counter (non-blocking, ignore errors)
+    curl -s --max-time 3 "https://qltro.com/api/vps-ping?v=${remote_ver}&a=update" >/dev/null 2>&1 &
+
     echo ""
     echo -e "${GREEN}╔══════════════════════════════════════════════════╗${NC}"
     echo -e "${GREEN}║   ✅ UPDATE COMPLETE!                             ║${NC}"
     echo -e "${GREEN}║   Version: ${remote_ver}  (${_mod_updated} modules updated)       ║${NC}"
+    if [ $_hc_fail -eq 0 ]; then
+        echo -e "${GREEN}║   Health: ✓ All services OK                       ║${NC}"
+    else
+        echo -e "${YELLOW}║   Health: ⚠ ${_hc_fail} issue(s) — check above         ║${NC}"
+    fi
     echo -e "${GREEN}╚══════════════════════════════════════════════════╝${NC}"
     echo ""
 }
