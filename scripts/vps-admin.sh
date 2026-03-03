@@ -49,6 +49,20 @@ load_lang() {
         MSG_SYS_TG_TOKEN="Telegram Bot Token"
         MSG_SYS_TG_CHAT="Chat ID"
         MSG_SYS_TG_UPDATED="Telegram config updated"
+        MSG_DETAIL_HINT="?  Detail  |  N?  Detail option N"
+        MSG_DETAIL_MAIN_1="Add/remove websites, redirect domains, fix permissions, maintenance, plugins. ✅ Safe."
+        MSG_DETAIL_MAIN_2="Backup tables, restore, create/drop databases, optimize, import/export SQL. ⚠ Backup first."
+        MSG_DETAIL_MAIN_3="Auto-install free SSL via Let's Encrypt. Renew, revoke, force HTTPS. ✅ Safe."
+        MSG_DETAIL_MAIN_4="Full backup, scheduled cron, per-table, interactive restore. ✅ Never deletes originals."
+        MSG_DETAIL_MAIN_5="WAF, IP lists, rate limiting, fail2ban, headers, anti-brute force. ✅ Safe."
+        MSG_DETAIL_MAIN_6="Redis, OPcache, FastCGI, Gzip/Brotli, PHP workers. ✅ Safe."
+        MSG_DETAIL_MAIN_7="Multi-VPS nodes, sync backups, migrate sites. ⚠ SSH keys required."
+        MSG_DETAIL_MAIN_8="Resource usage, logs, slow queries, Telegram alerts. ✅ Read-only."
+        MSG_DETAIL_MAIN_9="System info, update packages, restart services, crontab. ⚠ May restart."
+        MSG_DETAIL_MAIN_10="Malware scan, firewall, disk cleanup, swap, SSH, staging, creds."
+        MSG_DETAIL_MAIN_11="Multi-IP for SEO or separate SSL. ⚠ Extra IPs needed."
+        MSG_DETAIL_MAIN_12="Smart install, update, audit, health check, WP auto-update. ✅ Safe."
+        MSG_DETAIL_MAIN_13="Switch language: EN/VI/ZH/JA/FR/ES/PT. Auto-downloads. ✅ Safe."
     }
 }
 
@@ -301,143 +315,70 @@ show_detail() {
     echo -e "${GREEN}  ─────────────────────────────────${NC}"
     case "$menu" in
     main)
-        [[ -z "$opt" || "$opt" == "1" ]] && echo -e "  ${CYAN}1. Website Management${NC}
-     Add/remove websites, redirect domains, fix permissions,
-     enable maintenance mode, manage plugins.
-     ✅ Safe: creates directories, nginx config, database automatically."
-        [[ -z "$opt" || "$opt" == "2" ]] && echo -e "  ${CYAN}2. Database Management${NC}
-     Backup individual tables, restore, create/drop databases,
-     manage users, optimize/repair tables, import/export SQL.
-     ⚠ Careful with drop — always backup first."
-        [[ -z "$opt" || "$opt" == "3" ]] && echo -e "  ${CYAN}3. SSL Certificate${NC}
-     Auto-install free SSL via Let's Encrypt (certbot).
-     Renew, revoke, or force HTTPS redirect.
-     ✅ Safe: no data changes."
-        [[ -z "$opt" || "$opt" == "4" ]] && echo -e "  ${CYAN}4. Backup & Restore${NC}
-     Full backup (files + database), scheduled backup via cron,
-     per-table backup, interactive restore with preview.
-     ✅ Safe: never deletes originals."
-        [[ -z "$opt" || "$opt" == "5" ]] && echo -e "  ${CYAN}5. Security & WAF${NC}
-     ModSecurity WAF, IP whitelist/blacklist, rate limiting,
-     fail2ban management, security headers, brute force protection.
-     ✅ Safe: adds protection layers."
-        [[ -z "$opt" || "$opt" == "6" ]] && echo -e "  ${CYAN}6. Performance & Speed${NC}
-     Redis cache, OPcache, FastCGI cache, Gzip/Brotli,
-     PHP workers tuning, browser caching headers.
-     ✅ Safe: only modifies cache/compression settings."
-        [[ -z "$opt" || "$opt" == "7" ]] && echo -e "  ${CYAN}7. VPS Cluster Sync${NC}
-     Manage multiple VPS nodes, sync backups across servers,
-     migrate sites between VPS instances.
-     ⚠ Requires SSH key setup between servers."
-        [[ -z "$opt" || "$opt" == "8" ]] && echo -e "  ${CYAN}8. Monitoring & Logs${NC}
-     Real-time resource usage, access/error logs,
-     slow query log, Telegram alerts for downtime.
-     ✅ Safe: read-only monitoring."
-        [[ -z "$opt" || "$opt" == "9" ]] && echo -e "  ${CYAN}9. System Settings${NC}
-     System info, update packages, restart services,
-     Telegram config, crontab, view VPS config.
-     ⚠ Package update may restart services."
-        [[ -z "$opt" || "$opt" == "10" ]] && echo -e "  ${MAGENTA}10. Quick Tools${NC}
-     Malware scan, firewall hardening, disk cleanup,
-     swap management, SSH keys, WP staging, credentials.
-     Collection of frequently-used utilities."
-        [[ -z "$opt" || "$opt" == "11" ]] && echo -e "  ${MAGENTA}11. Multi-IP Management${NC}
-     Assign multiple IPs to different sites,
-     useful for SEO or separate SSL certificates.
-     ⚠ Requires additional IPs from provider."
-        [[ -z "$opt" || "$opt" == "12" ]] && echo -e "  ${YELLOW}12. VPS Update & Tools${NC}
-     Smart install, update scripts, security audit,
-     domain health check, WP auto-update with rollback.
-     ✅ Safe: backs up before updating."
-        [[ -z "$opt" || "$opt" == "13" ]] && echo -e "  ${YELLOW}13. Change Language${NC}
-     Switch UI language: EN, VI, ZH, JA, FR, ES, PT.
-     Auto-downloads language file if not available.
-     ✅ Safe: only changes display text."
+        [[ -z "$opt" || "$opt" == "1" ]] && echo -e "  ${CYAN}1. $MSG_MENU_WEBSITE${NC}\n     $MSG_DETAIL_MAIN_1"
+        [[ -z "$opt" || "$opt" == "2" ]] && echo -e "  ${CYAN}2. $MSG_MENU_DATABASE${NC}\n     $MSG_DETAIL_MAIN_2"
+        [[ -z "$opt" || "$opt" == "3" ]] && echo -e "  ${CYAN}3. $MSG_MENU_SSL${NC}\n     $MSG_DETAIL_MAIN_3"
+        [[ -z "$opt" || "$opt" == "4" ]] && echo -e "  ${CYAN}4. $MSG_MENU_BACKUP${NC}\n     $MSG_DETAIL_MAIN_4"
+        [[ -z "$opt" || "$opt" == "5" ]] && echo -e "  ${CYAN}5. $MSG_MENU_SECURITY${NC}\n     $MSG_DETAIL_MAIN_5"
+        [[ -z "$opt" || "$opt" == "6" ]] && echo -e "  ${CYAN}6. $MSG_MENU_PERFORMANCE${NC}\n     $MSG_DETAIL_MAIN_6"
+        [[ -z "$opt" || "$opt" == "7" ]] && echo -e "  ${CYAN}7. $MSG_MENU_CLUSTER${NC}\n     $MSG_DETAIL_MAIN_7"
+        [[ -z "$opt" || "$opt" == "8" ]] && echo -e "  ${CYAN}8. $MSG_MENU_MONITORING${NC}\n     $MSG_DETAIL_MAIN_8"
+        [[ -z "$opt" || "$opt" == "9" ]] && echo -e "  ${CYAN}9. $MSG_MENU_SYSTEM${NC}\n     $MSG_DETAIL_MAIN_9"
+        [[ -z "$opt" || "$opt" == "10" ]] && echo -e "  ${MAGENTA}10. $MSG_MENU_QUICK${NC}\n     $MSG_DETAIL_MAIN_10"
+        [[ -z "$opt" || "$opt" == "11" ]] && echo -e "  ${MAGENTA}11. $MSG_MENU_MULTIIP${NC}\n     $MSG_DETAIL_MAIN_11"
+        [[ -z "$opt" || "$opt" == "12" ]] && echo -e "  ${YELLOW}12. $MSG_MENU_UPDATE${NC}\n     $MSG_DETAIL_MAIN_12"
+        [[ -z "$opt" || "$opt" == "13" ]] && echo -e "  ${YELLOW}13. 🌍 Change Language${NC}\n     $MSG_DETAIL_MAIN_13"
         ;;
     website)
-        [[ -z "$opt" || "$opt" == "a" ]] && echo -e "  ${CYAN}a. Add new website${NC}
-     Enter domain → auto-creates /home/domain/public_html,
-     generates database + user, configures Nginx vhost,
-     installs WordPress. Doesn't affect existing sites."
-        [[ -z "$opt" || "$opt" == "r" ]] && echo -e "  ${YELLOW}r. Remove website${NC}
-     ⚠ CREATES BACKUP FIRST (file + database),
-     then removes Nginx config. Backup saved at
-     /backup/removed/. Data is NOT permanently lost."
-        [[ -z "$opt" || "$opt" == "d" ]] && echo -e "  ${CYAN}d. Add redirect${NC}
-     Redirect old domain to new domain (301 permanent).
-     Does NOT modify any files or databases."
-        [[ -z "$opt" || "$opt" == "f" ]] && echo -e "  ${CYAN}f. Fix permissions${NC}
-     Reset ownership and chmod (755 directories,
-     644 files). Does NOT delete anything."
-        [[ -z "$opt" || "$opt" == "m" ]] && echo -e "  ${CYAN}m. Maintenance mode${NC}
-     Toggle maintenance page on/off.
-     Press once to enable, again to disable."
-        [[ -z "$opt" || "$opt" == "p" ]] && echo -e "  ${CYAN}p. List plugins${NC}
-     View installed plugins per site.
-     Does NOT modify or remove any plugins."
-        [[ -z "$opt" || "$opt" == "-" ]] && echo -e "  ${CYAN}- . Disable plugin${NC}
-     Disable a plugin by renaming its folder.
-     Plugin files are NOT deleted."
-        [[ -z "$opt" || "$opt" == "+" ]] && echo -e "  ${CYAN}+. Enable plugin${NC}
-     Re-enable a previously disabled plugin.
-     Restores the folder name."
+        [[ -z "$opt" || "$opt" == "a" ]] && echo -e "  ${CYAN}a. $MSG_WEB_ADD${NC}\n     $MSG_DETAIL_WEB_A"
+        [[ -z "$opt" || "$opt" == "r" ]] && echo -e "  ${YELLOW}r. $MSG_WEB_REMOVE${NC}\n     $MSG_DETAIL_WEB_R"
+        [[ -z "$opt" || "$opt" == "d" ]] && echo -e "  ${CYAN}d. $MSG_WEB_REDIRECT${NC}\n     $MSG_DETAIL_WEB_D"
+        [[ -z "$opt" || "$opt" == "f" ]] && echo -e "  ${CYAN}f. $MSG_WEB_PERMS${NC}\n     $MSG_DETAIL_WEB_F"
+        [[ -z "$opt" || "$opt" == "m" ]] && echo -e "  ${CYAN}m. $MSG_WEB_MAINT${NC}\n     $MSG_DETAIL_WEB_M"
+        [[ -z "$opt" || "$opt" == "p" ]] && echo -e "  ${CYAN}p. $MSG_WEB_LISTPLUGINS${NC}\n     $MSG_DETAIL_WEB_P"
+        [[ -z "$opt" || "$opt" == "-" ]] && echo -e "  ${CYAN}-. $MSG_WEB_DISABLEPLUGIN${NC}\n     $MSG_DETAIL_WEB_MINUS"
+        [[ -z "$opt" || "$opt" == "+" ]] && echo -e "  ${CYAN}+. $MSG_WEB_ENABLEPLUGIN${NC}\n     $MSG_DETAIL_WEB_PLUS"
         ;;
     database)
-        [[ -z "$opt" || "$opt" == "1" ]] && echo -e "  ${CYAN}1. List databases${NC}
-     Show all databases with sizes. Read-only."
-        [[ -z "$opt" || "$opt" == "2" ]] && echo -e "  ${CYAN}2. List tables${NC}
-     Show tables in a database with row counts. Read-only."
-        [[ -z "$opt" || "$opt" == "3" ]] && echo -e "  ${CYAN}3. Backup database${NC}
-     Full dump to /backup/databases/. Does not modify data."
-        [[ -z "$opt" || "$opt" == "4" ]] && echo -e "  ${CYAN}4. Backup table${NC}
-     Backup individual tables. Useful for large databases."
-        [[ -z "$opt" || "$opt" == "5" ]] && echo -e "  ${CYAN}5. Restore database${NC}
-     ⚠ Overwrites current database with backup file."
-        [[ -z "$opt" || "$opt" == "6" ]] && echo -e "  ${CYAN}6. Optimize tables${NC}
-     Defragment and optimize table storage. Safe operation."
-        [[ -z "$opt" || "$opt" == "7" ]] && echo -e "  ${CYAN}7. Show credentials${NC}
-     Display DB name, user, password for each site."
+        [[ -z "$opt" || "$opt" == "1" ]] && echo -e "  ${CYAN}1. $MSG_DB_LIST${NC}\n     $MSG_DETAIL_DB_1"
+        [[ -z "$opt" || "$opt" == "2" ]] && echo -e "  ${CYAN}2. $MSG_DB_CREATE${NC}\n     $MSG_DETAIL_DB_2"
+        [[ -z "$opt" || "$opt" == "3" ]] && echo -e "  ${CYAN}3. $MSG_DB_DELETE${NC}\n     $MSG_DETAIL_DB_3"
+        [[ -z "$opt" || "$opt" == "4" ]] && echo -e "  ${CYAN}4. $MSG_DB_CREDS${NC}\n     $MSG_DETAIL_DB_4"
+        [[ -z "$opt" || "$opt" == "5" ]] && echo -e "  ${CYAN}5. $MSG_DB_OPTIMIZE${NC}\n     $MSG_DETAIL_DB_5"
+        [[ -z "$opt" || "$opt" == "6" ]] && echo -e "  ${CYAN}6. $MSG_DB_IMPORT${NC}\n     $MSG_DETAIL_DB_6"
+        [[ -z "$opt" || "$opt" == "7" ]] && echo -e "  ${CYAN}7. $MSG_DB_EXPORT${NC}\n     $MSG_DETAIL_DB_7"
         ;;
     backup)
-        [[ -z "$opt" || "$opt" == "1" ]] && echo -e "  ${CYAN}1. Full backup now${NC}
-     Backup ALL files + databases. Stored in /backup/."
-        [[ -z "$opt" || "$opt" == "2" ]] && echo -e "  ${CYAN}2. Schedule backup${NC}
-     Set cron for automatic daily/weekly backups."
-        [[ -z "$opt" || "$opt" == "3" ]] && echo -e "  ${CYAN}3. Interactive restore${NC}
-     Browse backups, preview contents, select what to restore."
-        [[ -z "$opt" || "$opt" == "4" ]] && echo -e "  ${CYAN}4. Backup single site${NC}
-     Backup one specific site (files + DB)."
+        [[ -z "$opt" || "$opt" == "1" ]] && echo -e "  ${CYAN}1. $MSG_BK_RUN${NC}\n     $MSG_DETAIL_BK_1"
+        [[ -z "$opt" || "$opt" == "2" ]] && echo -e "  ${CYAN}2. $MSG_BK_LIST${NC}\n     $MSG_DETAIL_BK_2"
+        [[ -z "$opt" || "$opt" == "3" ]] && echo -e "  ${CYAN}3. $MSG_BK_RESTORE${NC}\n     $MSG_DETAIL_BK_3"
+        [[ -z "$opt" || "$opt" == "4" ]] && echo -e "  ${CYAN}4. $MSG_BK_SYNC${NC}\n     $MSG_DETAIL_BK_4"
+        [[ -z "$opt" || "$opt" == "5" ]] && echo -e "  ${CYAN}5. $MSG_BK_SIZE${NC}\n     $MSG_DETAIL_BK_5"
+        [[ -z "$opt" || "$opt" == "6" ]] && echo -e "  ${CYAN}6. Per-table Split Dump${NC}\n     $MSG_DETAIL_BK_6"
         ;;
     security)
-        [[ -z "$opt" || "$opt" == "1" ]] && echo -e "  ${CYAN}1. WAF Status${NC}
-     Show ModSecurity Web Application Firewall status."
-        [[ -z "$opt" || "$opt" == "2" ]] && echo -e "  ${CYAN}2. Block/Unblock IP${NC}
-     Manually block or unblock IP addresses."
-        [[ -z "$opt" || "$opt" == "3" ]] && echo -e "  ${CYAN}3. Rate Limiting${NC}
-     Limit requests per second to prevent DDoS/abuse."
-        [[ -z "$opt" || "$opt" == "4" ]] && echo -e "  ${CYAN}4. fail2ban${NC}
-     View banned IPs, manage jail configs."
-        [[ -z "$opt" || "$opt" == "5" ]] && echo -e "  ${CYAN}5. WordPress Cleanup${NC}
-     🧹 Scan and remove malware from WordPress files.
-     Checks for: base64-encoded backdoors, eval injections,
-     suspicious plugins, infected .htaccess, rogue DB entries.
-     ⚠ Does NOT delete WordPress itself — only removes malware."
+        [[ -z "$opt" || "$opt" == "1" ]] && echo -e "  ${CYAN}1. $MSG_SEC_WAF${NC}\n     $MSG_DETAIL_SEC_1"
+        [[ -z "$opt" || "$opt" == "2" ]] && echo -e "  ${CYAN}2. $MSG_SEC_INTEGRITY${NC}\n     $MSG_DETAIL_SEC_2"
+        [[ -z "$opt" || "$opt" == "3" ]] && echo -e "  ${CYAN}3. $MSG_SEC_F2B${NC}\n     $MSG_DETAIL_SEC_3"
+        [[ -z "$opt" || "$opt" == "4" ]] && echo -e "  ${CYAN}4. $MSG_SEC_BAN${NC}\n     $MSG_DETAIL_SEC_4"
+        [[ -z "$opt" || "$opt" == "5" ]] && echo -e "  ${CYAN}5. $MSG_SEC_UNBAN${NC}\n     $MSG_DETAIL_SEC_5"
+        [[ -z "$opt" || "$opt" == "6" ]] && echo -e "  ${CYAN}6. $MSG_SEC_ATTACKS${NC}\n     $MSG_DETAIL_SEC_6"
+        [[ -z "$opt" || "$opt" == "7" ]] && echo -e "  ${CYAN}7. $MSG_SEC_PASSWD${NC}\n     $MSG_DETAIL_SEC_7"
         ;;
     performance)
-        [[ -z "$opt" || "$opt" == "1" ]] && echo -e "  ${CYAN}1. Redis Cache${NC}
-     Toggle Redis object cache for WordPress.
-     Speeds up database queries significantly."
-        [[ -z "$opt" || "$opt" == "2" ]] && echo -e "  ${CYAN}2. OPcache Status${NC}
-     Show PHP OPcache hit rate and memory usage."
-        [[ -z "$opt" || "$opt" == "3" ]] && echo -e "  ${CYAN}3. FastCGI Cache${NC}
-     Enable/disable Nginx FastCGI page caching."
-        [[ -z "$opt" || "$opt" == "4" ]] && echo -e "  ${CYAN}4. Gzip/Brotli${NC}
-     Enable/configure compression for faster page loads."
+        [[ -z "$opt" || "$opt" == "1" ]] && echo -e "  ${CYAN}1. $MSG_PERF_SPEED${NC}\n     $MSG_DETAIL_PERF_1"
+        [[ -z "$opt" || "$opt" == "2" ]] && echo -e "  ${CYAN}2. $MSG_PERF_PHP${NC}\n     $MSG_DETAIL_PERF_2"
+        [[ -z "$opt" || "$opt" == "3" ]] && echo -e "  ${CYAN}3. $MSG_PERF_OPCACHE${NC}\n     $MSG_DETAIL_PERF_3"
+        [[ -z "$opt" || "$opt" == "4" ]] && echo -e "  ${CYAN}4. $MSG_PERF_RESTART_PHP${NC}\n     $MSG_DETAIL_PERF_4"
+        [[ -z "$opt" || "$opt" == "5" ]] && echo -e "  ${CYAN}5. $MSG_PERF_RESTART_NGINX${NC}\n     $MSG_DETAIL_PERF_5"
+        [[ -z "$opt" || "$opt" == "6" ]] && echo -e "  ${CYAN}6. $MSG_PERF_CLEAR_OPCACHE${NC}\n     $MSG_DETAIL_PERF_6"
+        [[ -z "$opt" || "$opt" == "7" ]] && echo -e "  ${CYAN}7. $MSG_PERF_TOP${NC}\n     $MSG_DETAIL_PERF_7"
         ;;
     esac
     echo ""
     pause
 }
+
 
 show_main_menu() {
     header
@@ -458,7 +399,7 @@ show_main_menu() {
     echo -e "  ${YELLOW}13.${NC} 🌍 Change Language"
     echo -e "  ${RED}0.${NC} $MSG_MENU_EXIT"
     echo -e "  ${WHITE}─────────────────────────────────${NC}"
-    echo -e "  ${WHITE}?${NC}  Detail  |  ${WHITE}N?${NC}  Detail option N"
+    echo -e "  ${WHITE}$MSG_DETAIL_HINT${NC}"
     echo ""
     read -p "  $MSG_SELECT [0-13]: " CHOICE
 }
