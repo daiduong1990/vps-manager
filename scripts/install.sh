@@ -15,7 +15,7 @@
 
 # set -e removed: causes silent exit on piped install (curl|bash)
 
-VERSION="2.5.0"
+VERSION="2.5.1"
 SCRIPT_URL="https://raw.githubusercontent.com/hugnanastore-eng/vps-manager/main/scripts"
 CONFIG_DIR="/root/.vps-config"
 CONFIG_FILE="$CONFIG_DIR/setup.conf"
