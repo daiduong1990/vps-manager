@@ -40,6 +40,19 @@ for _mod in /usr/local/bin/vps-modules/*.sh; do
 done
 unset _mod
 
+# Load extended modules (new features)
+for _mod in /usr/local/bin/vps-modules/backup_split.sh \
+            /usr/local/bin/vps-modules/wp_auto_update.sh \
+            /usr/local/bin/vps-modules/resource_alert.sh \
+            /usr/local/bin/vps-modules/disk_cleanup.sh \
+            /usr/local/bin/vps-modules/ssh_key_manager.sh \
+            /usr/local/bin/vps-modules/domain_health.sh \
+            /usr/local/bin/vps-modules/wp_staging.sh \
+            /usr/local/bin/vps-modules/simple_analytics.sh; do
+    [ -f "$_mod" ] && source "$_mod"
+done
+unset _mod
+
 # Colors
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -523,6 +536,7 @@ menu_backup() {
     echo -e "  ${CYAN}3.${NC} Restore database from backup"
     echo -e "  ${CYAN}4.${NC} Sync to backup VPS"
     echo -e "  ${CYAN}5.${NC} Show backup size"
+    echo -e "  ${CYAN}6.${NC} 📦 Per-table Split Dump (GB-scale)"
     echo -e "  ${RED}0.${NC} Back"
     echo ""
     read -p "  Select: " BK_CHOICE
@@ -538,6 +552,7 @@ menu_backup() {
         4) [ -n "$BACKUP_VPS_IP" ] && rsync -azP /backup/ root@${BACKUP_VPS_IP}:/backup/from-${VPS_NAME}/ 2>/dev/null
            echo -e "${GREEN}  ✓ Synced${NC}"; pause ;;
         5) du -sh /backup/*/ 2>/dev/null; echo ""; du -sh /backup/ 2>/dev/null; pause ;;
+        6) if type menu_backup_split &>/dev/null; then menu_backup_split; else echo -e "${RED}  Module not loaded. Run: vps-update update${NC}"; sleep 2; fi ;;
     esac
 }
 
@@ -811,6 +826,8 @@ menu_monitoring() {
     echo -e "  ${CYAN}5.${NC} View integrity log"
     echo -e "  ${CYAN}6.${NC} Send test Telegram alert"
     echo -e "  ${CYAN}7.${NC} Disk usage by site"
+    echo -e "  ${CYAN}8.${NC} 📊 Domain Health Dashboard"
+    echo -e "  ${CYAN}9.${NC} 📈 Simple Analytics"
     echo -e "  ${RED}0.${NC} Back"
     echo ""
     read -p "  Select: " MON_CHOICE
@@ -833,6 +850,8 @@ menu_monitoring() {
                SIZE=$(du -sh /home/$d/ 2>/dev/null | awk '{print $1}')
                echo "  $d: $SIZE"
            done; pause ;;
+        8) if type menu_domain_health &>/dev/null; then menu_domain_health; else echo -e "${RED}  Module not loaded${NC}"; sleep 2; fi ;;
+        9) if type menu_simple_analytics &>/dev/null; then menu_simple_analytics; else echo -e "${RED}  Module not loaded${NC}"; sleep 2; fi ;;
     esac
 }
 
@@ -884,6 +903,9 @@ menu_quick_tools() {
     echo -e "  ${CYAN}7.${NC} 🌐 WordPress Bulk Operations"
     echo -e "  ${CYAN}8.${NC} 📋 View Site Credentials"
     echo -e "  ${CYAN}9.${NC} 🔑 Change Root Password"
+    echo -e "  ${CYAN}10.${NC} ⬆️  WordPress Auto-Update"
+    echo -e "  ${CYAN}11.${NC} 🔑 SSH Key Manager"
+    echo -e "  ${CYAN}12.${NC} 🔄 WordPress Staging"
     echo -e "  ${RED}0.${NC} Back"
     echo ""
     read -p "  Select: " QT_CHOICE
@@ -892,12 +914,15 @@ menu_quick_tools() {
         1) vps-update malware-scan; pause ;;
         2) vps-update firewall; pause ;;
         3) interactive_restore ;;
-        4) disk_cleanup ;;
+        4) if type menu_disk_cleanup &>/dev/null; then menu_disk_cleanup; else disk_cleanup; fi ;;
         5) swap_management ;;
-        6) resource_alerts ;;
+        6) if type menu_resource_alert &>/dev/null; then menu_resource_alert; else resource_alerts; fi ;;
         7) wp_bulk_ops ;;
         8) view_credentials ;;
         9) change_root_pass ;;
+        10) if type menu_wp_update &>/dev/null; then menu_wp_update; else echo -e "${RED}  Module not loaded. Run: vps-update update${NC}"; sleep 2; fi ;;
+        11) if type menu_ssh_keys &>/dev/null; then menu_ssh_keys; else echo -e "${RED}  Module not loaded. Run: vps-update update${NC}"; sleep 2; fi ;;
+        12) if type menu_wp_staging &>/dev/null; then menu_wp_staging; else echo -e "${RED}  Module not loaded. Run: vps-update update${NC}"; sleep 2; fi ;;
     esac
 }
 
@@ -1370,11 +1395,17 @@ if [ -n "$1" ]; then
                 echo "$d: TTFB ${TTFB}s"
             done; exit ;;
         backup) bash /usr/local/bin/backup_full.sh; exit ;;
+        backup-split) type menu_backup_split &>/dev/null && menu_backup_split; exit ;;
         update) bash /usr/local/bin/wp_auto_update.sh; exit ;;
+        wp-update) type wp_update_all &>/dev/null && wp_update_all; exit ;;
         script-update) vps-update update; exit ;;
         malware-scan|malware) vps-update malware-scan "$2"; exit ;;
         cluster-sync) cluster_sync_backup; cluster_sync_configs; exit ;;
-        *) echo "Usage: vps-admin [status|speed|backup|update|script-update|malware-scan|cluster-sync]"; exit ;;
+        resource-check) type resource_check &>/dev/null && resource_check; exit ;;
+        health) type domain_health_dashboard &>/dev/null && domain_health_dashboard; exit ;;
+        analytics) type menu_simple_analytics &>/dev/null && menu_simple_analytics; exit ;;
+        cleanup) type menu_disk_cleanup &>/dev/null && menu_disk_cleanup; exit ;;
+        *) echo "Usage: vps-admin [status|speed|backup|backup-split|update|wp-update|script-update|malware-scan|cluster-sync|resource-check|health|analytics|cleanup]"; exit ;;
     esac
 fi
 

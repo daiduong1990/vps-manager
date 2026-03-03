@@ -419,7 +419,29 @@ install_admin_panel() {
     }
     chmod +x /usr/local/bin/vps-admin.sh
     ln -sf /usr/local/bin/vps-admin.sh /usr/local/bin/vps-admin
-    log "Admin panel installed. Run: vps-admin"
+
+    # Install modules
+    log "Installing admin modules..."
+    mkdir -p /usr/local/bin/vps-modules
+    local MODULES_URL="$SCRIPT_URL/modules"
+    local modules=(
+        "multi-ip.sh"
+        "backup_split.sh"
+        "wp_auto_update.sh"
+        "resource_alert.sh"
+        "disk_cleanup.sh"
+        "ssh_key_manager.sh"
+        "domain_health.sh"
+        "wp_staging.sh"
+        "simple_analytics.sh"
+    )
+    for mod in "${modules[@]}"; do
+        curl -fsSL --retry 3 "$MODULES_URL/$mod" -o "/usr/local/bin/vps-modules/$mod" 2>/dev/null && \
+            chmod +x "/usr/local/bin/vps-modules/$mod" && \
+            log "  ✓ Module: $mod" || \
+            warn "  ✗ Failed: $mod"
+    done
+    log "Admin panel + ${#modules[@]} modules installed. Run: vps-admin"
 }
 
 install_backup_system() {
