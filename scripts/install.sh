@@ -1,8 +1,8 @@
 #!/bin/bash
 # ============================================
 #  VPS 1 Chạm - Smart Update / Smart Install
-#  Source: https://qltro.com/vps
-#  Version: 1.0.0
+#  Source: https://github.com/hugnanastore-eng/vps-manager
+#  Version: 2.0.0
 # ============================================
 #
 # MODES:
