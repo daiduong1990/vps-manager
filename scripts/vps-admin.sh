@@ -292,9 +292,152 @@ pause() {
     read -p "$(echo -e ${YELLOW}${MSG_PRESS_ENTER}${NC})" dummy
 }
 
-# ========================
-# MENU FUNCTIONS
-# ========================
+# ── Inline Help System ──
+# Type ? in any menu to see all details, or N? for specific option
+show_detail() {
+    local menu="$1" opt="$2"
+    echo ""
+    echo -e "${WHITE}${BOLD}  📖 DETAIL: $menu${NC}"
+    echo -e "${GREEN}  ─────────────────────────────────${NC}"
+    case "$menu" in
+    main)
+        [[ -z "$opt" || "$opt" == "1" ]] && echo -e "  ${CYAN}1. Website Management${NC}
+     Add/remove websites, redirect domains, fix permissions,
+     enable maintenance mode, manage plugins.
+     ✅ Safe: creates directories, nginx config, database automatically."
+        [[ -z "$opt" || "$opt" == "2" ]] && echo -e "  ${CYAN}2. Database Management${NC}
+     Backup individual tables, restore, create/drop databases,
+     manage users, optimize/repair tables, import/export SQL.
+     ⚠ Careful with drop — always backup first."
+        [[ -z "$opt" || "$opt" == "3" ]] && echo -e "  ${CYAN}3. SSL Certificate${NC}
+     Auto-install free SSL via Let's Encrypt (certbot).
+     Renew, revoke, or force HTTPS redirect.
+     ✅ Safe: no data changes."
+        [[ -z "$opt" || "$opt" == "4" ]] && echo -e "  ${CYAN}4. Backup & Restore${NC}
+     Full backup (files + database), scheduled backup via cron,
+     per-table backup, interactive restore with preview.
+     ✅ Safe: never deletes originals."
+        [[ -z "$opt" || "$opt" == "5" ]] && echo -e "  ${CYAN}5. Security & WAF${NC}
+     ModSecurity WAF, IP whitelist/blacklist, rate limiting,
+     fail2ban management, security headers, brute force protection.
+     ✅ Safe: adds protection layers."
+        [[ -z "$opt" || "$opt" == "6" ]] && echo -e "  ${CYAN}6. Performance & Speed${NC}
+     Redis cache, OPcache, FastCGI cache, Gzip/Brotli,
+     PHP workers tuning, browser caching headers.
+     ✅ Safe: only modifies cache/compression settings."
+        [[ -z "$opt" || "$opt" == "7" ]] && echo -e "  ${CYAN}7. VPS Cluster Sync${NC}
+     Manage multiple VPS nodes, sync backups across servers,
+     migrate sites between VPS instances.
+     ⚠ Requires SSH key setup between servers."
+        [[ -z "$opt" || "$opt" == "8" ]] && echo -e "  ${CYAN}8. Monitoring & Logs${NC}
+     Real-time resource usage, access/error logs,
+     slow query log, Telegram alerts for downtime.
+     ✅ Safe: read-only monitoring."
+        [[ -z "$opt" || "$opt" == "9" ]] && echo -e "  ${CYAN}9. System Settings${NC}
+     System info, update packages, restart services,
+     Telegram config, crontab, view VPS config.
+     ⚠ Package update may restart services."
+        [[ -z "$opt" || "$opt" == "10" ]] && echo -e "  ${MAGENTA}10. Quick Tools${NC}
+     Malware scan, firewall hardening, disk cleanup,
+     swap management, SSH keys, WP staging, credentials.
+     Collection of frequently-used utilities."
+        [[ -z "$opt" || "$opt" == "11" ]] && echo -e "  ${MAGENTA}11. Multi-IP Management${NC}
+     Assign multiple IPs to different sites,
+     useful for SEO or separate SSL certificates.
+     ⚠ Requires additional IPs from provider."
+        [[ -z "$opt" || "$opt" == "12" ]] && echo -e "  ${YELLOW}12. VPS Update & Tools${NC}
+     Smart install, update scripts, security audit,
+     domain health check, WP auto-update with rollback.
+     ✅ Safe: backs up before updating."
+        [[ -z "$opt" || "$opt" == "13" ]] && echo -e "  ${YELLOW}13. Change Language${NC}
+     Switch UI language: EN, VI, ZH, JA, FR, ES, PT.
+     Auto-downloads language file if not available.
+     ✅ Safe: only changes display text."
+        ;;
+    website)
+        [[ -z "$opt" || "$opt" == "a" ]] && echo -e "  ${CYAN}a. Add new website${NC}
+     Enter domain → auto-creates /home/domain/public_html,
+     generates database + user, configures Nginx vhost,
+     installs WordPress. Doesn't affect existing sites."
+        [[ -z "$opt" || "$opt" == "r" ]] && echo -e "  ${YELLOW}r. Remove website${NC}
+     ⚠ CREATES BACKUP FIRST (file + database),
+     then removes Nginx config. Backup saved at
+     /backup/removed/. Data is NOT permanently lost."
+        [[ -z "$opt" || "$opt" == "d" ]] && echo -e "  ${CYAN}d. Add redirect${NC}
+     Redirect old domain to new domain (301 permanent).
+     Does NOT modify any files or databases."
+        [[ -z "$opt" || "$opt" == "f" ]] && echo -e "  ${CYAN}f. Fix permissions${NC}
+     Reset ownership and chmod (755 directories,
+     644 files). Does NOT delete anything."
+        [[ -z "$opt" || "$opt" == "m" ]] && echo -e "  ${CYAN}m. Maintenance mode${NC}
+     Toggle maintenance page on/off.
+     Press once to enable, again to disable."
+        [[ -z "$opt" || "$opt" == "p" ]] && echo -e "  ${CYAN}p. List plugins${NC}
+     View installed plugins per site.
+     Does NOT modify or remove any plugins."
+        [[ -z "$opt" || "$opt" == "-" ]] && echo -e "  ${CYAN}- . Disable plugin${NC}
+     Disable a plugin by renaming its folder.
+     Plugin files are NOT deleted."
+        [[ -z "$opt" || "$opt" == "+" ]] && echo -e "  ${CYAN}+. Enable plugin${NC}
+     Re-enable a previously disabled plugin.
+     Restores the folder name."
+        ;;
+    database)
+        [[ -z "$opt" || "$opt" == "1" ]] && echo -e "  ${CYAN}1. List databases${NC}
+     Show all databases with sizes. Read-only."
+        [[ -z "$opt" || "$opt" == "2" ]] && echo -e "  ${CYAN}2. List tables${NC}
+     Show tables in a database with row counts. Read-only."
+        [[ -z "$opt" || "$opt" == "3" ]] && echo -e "  ${CYAN}3. Backup database${NC}
+     Full dump to /backup/databases/. Does not modify data."
+        [[ -z "$opt" || "$opt" == "4" ]] && echo -e "  ${CYAN}4. Backup table${NC}
+     Backup individual tables. Useful for large databases."
+        [[ -z "$opt" || "$opt" == "5" ]] && echo -e "  ${CYAN}5. Restore database${NC}
+     ⚠ Overwrites current database with backup file."
+        [[ -z "$opt" || "$opt" == "6" ]] && echo -e "  ${CYAN}6. Optimize tables${NC}
+     Defragment and optimize table storage. Safe operation."
+        [[ -z "$opt" || "$opt" == "7" ]] && echo -e "  ${CYAN}7. Show credentials${NC}
+     Display DB name, user, password for each site."
+        ;;
+    backup)
+        [[ -z "$opt" || "$opt" == "1" ]] && echo -e "  ${CYAN}1. Full backup now${NC}
+     Backup ALL files + databases. Stored in /backup/."
+        [[ -z "$opt" || "$opt" == "2" ]] && echo -e "  ${CYAN}2. Schedule backup${NC}
+     Set cron for automatic daily/weekly backups."
+        [[ -z "$opt" || "$opt" == "3" ]] && echo -e "  ${CYAN}3. Interactive restore${NC}
+     Browse backups, preview contents, select what to restore."
+        [[ -z "$opt" || "$opt" == "4" ]] && echo -e "  ${CYAN}4. Backup single site${NC}
+     Backup one specific site (files + DB)."
+        ;;
+    security)
+        [[ -z "$opt" || "$opt" == "1" ]] && echo -e "  ${CYAN}1. WAF Status${NC}
+     Show ModSecurity Web Application Firewall status."
+        [[ -z "$opt" || "$opt" == "2" ]] && echo -e "  ${CYAN}2. Block/Unblock IP${NC}
+     Manually block or unblock IP addresses."
+        [[ -z "$opt" || "$opt" == "3" ]] && echo -e "  ${CYAN}3. Rate Limiting${NC}
+     Limit requests per second to prevent DDoS/abuse."
+        [[ -z "$opt" || "$opt" == "4" ]] && echo -e "  ${CYAN}4. fail2ban${NC}
+     View banned IPs, manage jail configs."
+        [[ -z "$opt" || "$opt" == "5" ]] && echo -e "  ${CYAN}5. WordPress Cleanup${NC}
+     🧹 Scan and remove malware from WordPress files.
+     Checks for: base64-encoded backdoors, eval injections,
+     suspicious plugins, infected .htaccess, rogue DB entries.
+     ⚠ Does NOT delete WordPress itself — only removes malware."
+        ;;
+    performance)
+        [[ -z "$opt" || "$opt" == "1" ]] && echo -e "  ${CYAN}1. Redis Cache${NC}
+     Toggle Redis object cache for WordPress.
+     Speeds up database queries significantly."
+        [[ -z "$opt" || "$opt" == "2" ]] && echo -e "  ${CYAN}2. OPcache Status${NC}
+     Show PHP OPcache hit rate and memory usage."
+        [[ -z "$opt" || "$opt" == "3" ]] && echo -e "  ${CYAN}3. FastCGI Cache${NC}
+     Enable/disable Nginx FastCGI page caching."
+        [[ -z "$opt" || "$opt" == "4" ]] && echo -e "  ${CYAN}4. Gzip/Brotli${NC}
+     Enable/configure compression for faster page loads."
+        ;;
+    esac
+    echo ""
+    pause
+}
 
 show_main_menu() {
     header
@@ -314,6 +457,8 @@ show_main_menu() {
     echo -e "  ${YELLOW}12.${NC} $MSG_MENU_UPDATE"
     echo -e "  ${YELLOW}13.${NC} 🌍 Change Language"
     echo -e "  ${RED}0.${NC} $MSG_MENU_EXIT"
+    echo -e "  ${WHITE}─────────────────────────────────${NC}"
+    echo -e "  ${WHITE}?${NC}  Detail  |  ${WHITE}N?${NC}  Detail option N"
     echo ""
     read -p "  $MSG_SELECT [0-13]: " CHOICE
 }
@@ -349,6 +494,7 @@ menu_website() {
     echo -e "  ${CYAN}-.${NC} Disable plugin"
     echo -e "  ${CYAN}+.${NC} Enable plugin"
     echo -e "  ${RED}0.${NC} Back"
+    echo -e "  ${WHITE}?${NC}  What does each option do?"
     echo ""
     read -p "  Select: " WEB_CHOICE
 
@@ -361,6 +507,8 @@ menu_website() {
         p|P) list_plugins ;;
         -) disable_plugin ;;
         +) enable_plugin ;;
+        "?") show_detail website ;;
+        *\?) show_detail website "${WEB_CHOICE%?}" ;;
     esac
 }
 
@@ -576,6 +724,7 @@ menu_database() {
     echo -e "  ${CYAN}6.${NC} Import SQL file"
     echo -e "  ${CYAN}7.${NC} Export database"
     echo -e "  ${RED}0.${NC} Back"
+    echo -e "  ${WHITE}?${NC}  What does each option do?"
     echo ""
     read -p "  Select: " DB_CHOICE
 
@@ -597,6 +746,8 @@ menu_database() {
         7) read -p "  DB name: " EDB; validate_dbname "$EDB" || break
            read -p "  Output file: " EFILE
            _mysqldump "$EDB" 2>/dev/null > "$EFILE" && echo -e "${GREEN}  ✓ Exported to $EFILE${NC}"; pause ;;
+        "?") show_detail database ;;
+        *\?) show_detail database "${DB_CHOICE%?}" ;;
     esac
 }
 
@@ -641,6 +792,7 @@ menu_backup() {
     echo -e "  ${CYAN}5.${NC} Show backup size"
     echo -e "  ${CYAN}6.${NC} 📦 Per-table Split Dump (GB-scale)"
     echo -e "  ${RED}0.${NC} Back"
+    echo -e "  ${WHITE}?${NC}  What does each option do?"
     echo ""
     read -p "  Select: " BK_CHOICE
 
@@ -656,6 +808,8 @@ menu_backup() {
            echo -e "${GREEN}  ✓ Synced${NC}"; pause ;;
         5) du -sh /backup/*/ 2>/dev/null; echo ""; du -sh /backup/ 2>/dev/null; pause ;;
         6) if type menu_backup_split &>/dev/null; then menu_backup_split; else echo -e "${RED}  Module not loaded. Run: vps-update update${NC}"; sleep 2; fi ;;
+        "?") show_detail backup ;;
+        *\?) show_detail backup "${BK_CHOICE%?}" ;;
     esac
 }
 
@@ -672,6 +826,7 @@ menu_security() {
     echo -e "  ${CYAN}6.${NC} View recent attacks"
     echo -e "  ${CYAN}7.${NC} Change SSH password"
     echo -e "  ${RED}0.${NC} Back"
+    echo -e "  ${WHITE}?${NC}  What does each option do?"
     echo ""
     read -p "  Select: " SEC_CHOICE
 
@@ -686,6 +841,8 @@ menu_security() {
            echo -e "${GREEN}  ✓ $UBAN_IP unbanned${NC}"; pause ;;
         6) echo "  === Last 20 blocked requests ==="; grep " 403 " /var/log/nginx/access.log 2>/dev/null | tail -20; pause ;;
         7) passwd; pause ;;
+        "?") show_detail security ;;
+        *\?) show_detail security "${SEC_CHOICE%?}" ;;
     esac
 }
 
@@ -1632,6 +1789,8 @@ while true; do
         11) if type menu_multi_ip &>/dev/null; then menu_multi_ip; else echo -e "${RED}  Module not installed. Run: vps-update update${NC}"; sleep 2; fi ;;
         12) menu_vps_update ;;
         13) change_language ;;
+        "?") show_detail main ;;
+        *\?) show_detail main "${CHOICE%?}" ;;
         0) echo -e "${GREEN}  Bye!${NC}"; exit 0 ;;
         *) echo -e "${RED}  $MSG_INVALID${NC}"; sleep 1 ;;
     esac
