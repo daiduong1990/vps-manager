@@ -228,39 +228,37 @@ menu_website() {
     if [ ${#_domain_list[@]} -eq 0 ]; then
         echo -e "    ${RED}No sites found. Add a site or configure DOMAINS in setup.conf${NC}"
     else
-        local i=1
         for d in "${_domain_list[@]}"; do
             CODE=$(curl -s -o /dev/null -w "%{http_code}" --connect-timeout 3 "https://$d" 2>/dev/null)
             if [ "$CODE" = "200" ] || [ "$CODE" = "301" ]; then
-                echo -e "    $i. ${GREEN}●${NC} $d (HTTP $CODE)"
+                echo -e "    ${GREEN}●${NC} $d (HTTP $CODE)"
             else
-                echo -e "    $i. ${RED}●${NC} $d (HTTP $CODE)"
+                echo -e "    ${RED}●${NC} $d (HTTP $CODE)"
             fi
-            ((i++))
         done
     fi
     echo ""
-    echo -e "  ${CYAN}1.${NC} Add new website"
-    echo -e "  ${CYAN}2.${NC} Remove website"
-    echo -e "  ${CYAN}3.${NC} Add redirect domain"
-    echo -e "  ${CYAN}4.${NC} Fix permissions"
-    echo -e "  ${CYAN}5.${NC} Enable/Disable maintenance"
-    echo -e "  ${CYAN}6.${NC} List plugins (per site)"
-    echo -e "  ${CYAN}7.${NC} Disable plugin"
-    echo -e "  ${CYAN}8.${NC} Enable plugin"
+    echo -e "  ${CYAN}a.${NC} Add new website"
+    echo -e "  ${CYAN}r.${NC} Remove website"
+    echo -e "  ${CYAN}d.${NC} Add redirect domain"
+    echo -e "  ${CYAN}f.${NC} Fix permissions"
+    echo -e "  ${CYAN}m.${NC} Enable/Disable maintenance"
+    echo -e "  ${CYAN}p.${NC} List plugins (per site)"
+    echo -e "  ${CYAN}-.${NC} Disable plugin"
+    echo -e "  ${CYAN}+.${NC} Enable plugin"
     echo -e "  ${RED}0.${NC} Back"
     echo ""
     read -p "  Select: " WEB_CHOICE
 
     case $WEB_CHOICE in
-        1) add_website ;;
-        2) remove_website ;;
-        3) add_redirect ;;
-        4) fix_permissions ;;
-        5) toggle_maintenance ;;
-        6) list_plugins ;;
-        7) disable_plugin ;;
-        8) enable_plugin ;;
+        a|A) add_website ;;
+        r|R) remove_website ;;
+        d|D) add_redirect ;;
+        f|F) fix_permissions ;;
+        m|M) toggle_maintenance ;;
+        p|P) list_plugins ;;
+        -) disable_plugin ;;
+        +) enable_plugin ;;
     esac
 }
 
@@ -571,8 +569,6 @@ menu_security() {
     echo -e "  ${CYAN}5.${NC} Unban IP address"
     echo -e "  ${CYAN}6.${NC} View recent attacks"
     echo -e "  ${CYAN}7.${NC} Change SSH password"
-    echo -e "  ${MAGENTA}8.${NC} 🛡️  Malware Scanner (quét mã độc WP)"
-    echo -e "  ${MAGENTA}9.${NC} ⬆️  Update VPS Script"
     echo -e "  ${RED}0.${NC} Back"
     echo ""
     read -p "  Select: " SEC_CHOICE
@@ -588,8 +584,6 @@ menu_security() {
            echo -e "${GREEN}  ✓ $UBAN_IP unbanned${NC}"; pause ;;
         6) echo "  === Last 20 blocked requests ==="; grep " 403 " /var/log/nginx/access.log 2>/dev/null | tail -20; pause ;;
         7) passwd; pause ;;
-        8) vps-update malware-scan; pause ;;
-        9) vps-update update; pause ;;
     esac
 }
 
@@ -1005,20 +999,26 @@ interactive_restore() {
     # List target databases or sites
     echo ""
     echo -e "  ${YELLOW}Target sites:${NC}"
-    IFS=',' read -ra DOMS <<< "$DOMAINS"
+    _load_domains
     local j=1
-    for d in "${DOMS[@]}"; do
-        d=$(echo "$d" | xargs)
+    for d in "${_domain_list[@]}"; do
         echo "    $j. $d"
         ((j++))
     done
 
+    if [ ${#_domain_list[@]} -eq 0 ]; then
+        echo -e "  ${RED}No sites found${NC}"
+        pause; return
+    fi
+
     echo ""
     read -p "  Target site [1-$((j-1))]: " tsel
     [ -z "$tsel" ] && return
+    if [[ ! "$tsel" =~ ^[0-9]+$ ]] || [ "$tsel" -lt 1 ] || [ "$tsel" -gt ${#_domain_list[@]} ]; then
+        echo -e "  ${RED}Invalid selection${NC}"; pause; return
+    fi
     local tidx=$((tsel-1))
-    local target_domain="${DOMS[$tidx]}"
-    target_domain=$(echo "$target_domain" | xargs)
+    local target_domain="${_domain_list[$tidx]}"
 
     # Get DB name from credentials
     local db_name=$(grep "^$target_domain:" /root/.vps-config/db-credentials.txt 2>/dev/null | grep -oP 'DB=\K\S+')
@@ -1076,11 +1076,9 @@ disk_cleanup() {
     echo -e "  ${CYAN}[3/6]${NC} WP transients..."
     local transients=0
     if command -v wp &>/dev/null; then
-        for dir in /var/www/*/; do
-            [ -f "$dir/wp-config.php" ] || [ -f "/home/$(basename $dir)/public_html/wp-config.php" ] || continue
-            local wp_dir="$dir"
-            [ -f "/home/$(basename $dir)/public_html/wp-config.php" ] && wp_dir="/home/$(basename $dir)/public_html"
-            local t=$(wp transient delete --all --path="$wp_dir" --allow-root 2>/dev/null | grep -c 'Success')
+        for dir in /home/*/public_html; do
+            [ -f "$dir/wp-config.php" ] || continue
+            local t=$(wp transient delete --all --path="$dir" --allow-root 2>/dev/null | grep -c 'Success')
             transients=$((transients + t))
         done
     fi
@@ -1089,13 +1087,12 @@ disk_cleanup() {
     # 4. WordPress post revisions
     echo -e "  ${CYAN}[4/6]${NC} WP post revisions..."
     if command -v wp &>/dev/null; then
-        for dir in /var/www/*/; do
-            [ -f "$dir/wp-config.php" ] || [ -f "/home/$(basename $dir)/public_html/wp-config.php" ] || continue
-            local wp_dir="$dir"
-            [ -f "/home/$(basename $dir)/public_html/wp-config.php" ] && wp_dir="/home/$(basename $dir)/public_html"
-            local prefix=$(wp db prefix --path="$wp_dir" --allow-root 2>/dev/null)
-            local revs=$(wp db query "SELECT COUNT(*) FROM ${prefix}posts WHERE post_type='revision'" --path="$wp_dir" --allow-root 2>/dev/null | tail -1)
-            echo "    $(basename $dir): $revs revisions"
+        for dir in /home/*/public_html; do
+            [ -f "$dir/wp-config.php" ] || continue
+            local domain=$(basename "$(dirname "$dir")")
+            local prefix=$(wp db prefix --path="$dir" --allow-root 2>/dev/null)
+            local revs=$(wp db query "SELECT COUNT(*) FROM ${prefix}posts WHERE post_type='revision'" --path="$dir" --allow-root 2>/dev/null | tail -1)
+            echo "    $domain: $revs revisions"
         done
     fi
 
@@ -1128,12 +1125,10 @@ disk_cleanup() {
         [ "$del_old" = "y" ] && find /backup -name '*.sql.gz' -mtime +30 -delete 2>/dev/null
         # Clean WordPress revisions
         if command -v wp &>/dev/null; then
-            for dir in /var/www/*/; do
-                [ -f "$dir/wp-config.php" ] || [ -f "/home/$(basename $dir)/public_html/wp-config.php" ] || continue
-                local wp_dir="$dir"
-                [ -f "/home/$(basename $dir)/public_html/wp-config.php" ] && wp_dir="/home/$(basename $dir)/public_html"
-                local prefix=$(wp db prefix --path="$wp_dir" --allow-root 2>/dev/null)
-                wp db query "DELETE FROM ${prefix}posts WHERE post_type='revision'" --path="$wp_dir" --allow-root 2>/dev/null
+            for dir in /home/*/public_html; do
+                [ -f "$dir/wp-config.php" ] || continue
+                local prefix=$(wp db prefix --path="$dir" --allow-root 2>/dev/null)
+                wp db query "DELETE FROM ${prefix}posts WHERE post_type='revision'" --path="$dir" --allow-root 2>/dev/null
             done
         fi
         echo -e "  ${GREEN}✓ Cleanup complete!${NC}"
@@ -1290,47 +1285,46 @@ wp_bulk_ops() {
 
     case $wp_choice in
         1)
-            for dir in /var/www/*/; do
-                [ -f "$dir/wp-config.php" ] || [ -f "/home/$(basename $dir)/public_html/wp-config.php" ] || continue
-                local wp_dir="$dir"
-                [ -f "/home/$(basename $dir)/public_html/wp-config.php" ] && wp_dir="/home/$(basename $dir)/public_html"
-                echo -e "  ${CYAN}$(basename $dir):${NC}"
+            _load_domains
+            for d in "${_domain_list[@]}"; do
+                local wp_dir="/home/$d/public_html"
+                [ -f "$wp_dir/wp-config.php" ] || continue
+                echo -e "  ${CYAN}$d:${NC}"
                 wp plugin update --all --path="$wp_dir" --allow-root 2>/dev/null | grep -E 'Success|plugin'
             done; pause ;;
         2)
-            for dir in /var/www/*/; do
-                [ -f "$dir/wp-config.php" ] || [ -f "/home/$(basename $dir)/public_html/wp-config.php" ] || continue
-                local wp_dir="$dir"
-                [ -f "/home/$(basename $dir)/public_html/wp-config.php" ] && wp_dir="/home/$(basename $dir)/public_html"
-                echo -e "  ${CYAN}$(basename $dir):${NC}"
+            _load_domains
+            for d in "${_domain_list[@]}"; do
+                local wp_dir="/home/$d/public_html"
+                [ -f "$wp_dir/wp-config.php" ] || continue
+                echo -e "  ${CYAN}$d:${NC}"
                 wp theme update --all --path="$wp_dir" --allow-root 2>/dev/null | grep -E 'Success|theme'
             done; pause ;;
         3)
-            for dir in /var/www/*/; do
-                [ -f "$dir/wp-config.php" ] || [ -f "/home/$(basename $dir)/public_html/wp-config.php" ] || continue
-                local wp_dir="$dir"
-                [ -f "/home/$(basename $dir)/public_html/wp-config.php" ] && wp_dir="/home/$(basename $dir)/public_html"
-                echo -e "  ${CYAN}$(basename $dir):${NC}"
+            _load_domains
+            for d in "${_domain_list[@]}"; do
+                local wp_dir="/home/$d/public_html"
+                [ -f "$wp_dir/wp-config.php" ] || continue
+                echo -e "  ${CYAN}$d:${NC}"
                 wp core update --path="$wp_dir" --allow-root 2>/dev/null | grep -E 'Success|version'
             done; pause ;;
         4)
             echo ""
-            for dir in /var/www/*/; do
-                [ -f "$dir/wp-config.php" ] || [ -f "/home/$(basename $dir)/public_html/wp-config.php" ] || continue
-                local wp_dir="$dir"
-                [ -f "/home/$(basename $dir)/public_html/wp-config.php" ] && wp_dir="/home/$(basename $dir)/public_html"
-                local domain=$(basename $dir)
+            _load_domains
+            for d in "${_domain_list[@]}"; do
+                local wp_dir="/home/$d/public_html"
+                [ -f "$wp_dir/wp-config.php" ] || continue
                 local version=$(wp core version --path="$wp_dir" --allow-root 2>/dev/null)
                 local plugins=$(wp plugin list --status=active --format=count --path="$wp_dir" --allow-root 2>/dev/null)
                 local updates=$(wp plugin list --update=available --format=count --path="$wp_dir" --allow-root 2>/dev/null)
-                echo -e "  ${WHITE}$domain:${NC}"
+                echo -e "  ${WHITE}$d:${NC}"
                 echo -e "    WP $version | $plugins plugins | ${YELLOW}$updates updates available${NC}"
             done; pause ;;
         5)
-            for dir in /var/www/*/; do
-                [ -f "$dir/wp-config.php" ] || [ -f "/home/$(basename $dir)/public_html/wp-config.php" ] || continue
-                local wp_dir="$dir"
-                [ -f "/home/$(basename $dir)/public_html/wp-config.php" ] && wp_dir="/home/$(basename $dir)/public_html"
+            _load_domains
+            for d in "${_domain_list[@]}"; do
+                local wp_dir="/home/$d/public_html"
+                [ -f "$wp_dir/wp-config.php" ] || continue
                 wp cache flush --path="$wp_dir" --allow-root 2>/dev/null
                 wp transient delete --all --path="$wp_dir" --allow-root 2>/dev/null
             done
@@ -1338,12 +1332,12 @@ wp_bulk_ops() {
             echo -e "  ${GREEN}✓ All caches cleared${NC}"; pause ;;
         6)
             read -p "  Plugin slug to deactivate: " slug; validate_plugin "$slug" || break
-            for dir in /var/www/*/; do
-                [ -f "$dir/wp-config.php" ] || [ -f "/home/$(basename $dir)/public_html/wp-config.php" ] || continue
-                local wp_dir="$dir"
-                [ -f "/home/$(basename $dir)/public_html/wp-config.php" ] && wp_dir="/home/$(basename $dir)/public_html"
+            _load_domains
+            for d in "${_domain_list[@]}"; do
+                local wp_dir="/home/$d/public_html"
+                [ -f "$wp_dir/wp-config.php" ] || continue
                 wp plugin deactivate "$slug" --path="$wp_dir" --allow-root 2>/dev/null
-                echo -e "  ${GREEN}✓${NC} $(basename $dir): $slug deactivated"
+                echo -e "  ${GREEN}✓${NC} $d: $slug deactivated"
             done; pause ;;
     esac
 }
@@ -1400,8 +1394,8 @@ if [ -n "$1" ]; then
     case "$1" in
         status) menu_monitoring; exit ;;
         speed)
-            IFS=',' read -ra DOMS <<< "$DOMAINS"
-            for d in "${DOMS[@]}"; do d=$(echo "$d" | xargs)
+            _load_domains
+            for d in "${_domain_list[@]}"; do
                 TTFB=$(curl -s -o /dev/null -w "%{time_starttransfer}" --connect-timeout 10 "https://$d" 2>/dev/null)
                 echo "$d: TTFB ${TTFB}s"
             done; exit ;;
