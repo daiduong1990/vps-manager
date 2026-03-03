@@ -3,7 +3,7 @@
 #  VPS Admin Panel (HocVPS-style interactive menu)
 #  Usage: vps-admin (or just type 'vps-admin' anywhere)
 # ================================================================
-set -uo pipefail
+set -o pipefail
 readonly VER="2.5.1"
 export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 export LC_ALL=C
