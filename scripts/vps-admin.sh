@@ -943,6 +943,10 @@ menu_vps_update() {
     echo -e "  ${CYAN}3.${NC} 🔍 Security Audit"
     echo -e "  ${CYAN}4.${NC} 🛡️  Malware Scanner"
     echo -e "  ${CYAN}5.${NC} 🔥 Firewall Hardening"
+    echo -e "  ${CYAN}6.${NC} 🧹 Disk Cleanup"
+    echo -e "  ${CYAN}7.${NC} 📟 Resource Check"
+    echo -e "  ${CYAN}8.${NC} 🩺 Domain Health Check"
+    echo -e "  ${CYAN}9.${NC} ⬆️  WP Auto-Update + Rollback"
     echo -e "  ${RED}0.${NC} Back"
     echo ""
     read -p "  Select: " VU_CHOICE
@@ -953,6 +957,10 @@ menu_vps_update() {
         3) vps-update audit; pause ;;
         4) vps-update malware-scan; pause ;;
         5) vps-update firewall; pause ;;
+        6) if type menu_disk_cleanup &>/dev/null; then menu_disk_cleanup; else echo -e "${RED}  Module not loaded${NC}"; sleep 2; fi ;;
+        7) if type resource_check &>/dev/null; then resource_check; pause; elif type menu_resource_alert &>/dev/null; then menu_resource_alert; else echo -e "${RED}  Module not loaded${NC}"; sleep 2; fi ;;
+        8) if type domain_health_dashboard &>/dev/null; then domain_health_dashboard; pause; elif type menu_domain_health &>/dev/null; then menu_domain_health; else echo -e "${RED}  Module not loaded${NC}"; sleep 2; fi ;;
+        9) if type menu_wp_update &>/dev/null; then menu_wp_update; else echo -e "${RED}  Module not loaded. Run: vps-update update${NC}"; sleep 2; fi ;;
     esac
 }
 

@@ -2,7 +2,7 @@
 # ============================================
 #  VPS 1 Chạm - Smart Update / Smart Install
 #  Source: https://github.com/hugnanastore-eng/vps-manager
-#  Version: 2.0.0
+#  Version: 2.1.0
 # ============================================
 #
 # MODES:
@@ -15,7 +15,7 @@
 
 # set -e removed: causes silent exit on piped install (curl|bash)
 
-VERSION="2.0.0"
+VERSION="2.1.0"
 SCRIPT_URL="https://raw.githubusercontent.com/hugnanastore-eng/vps-manager/main/scripts"
 CONFIG_DIR="/root/.vps-config"
 CONFIG_FILE="$CONFIG_DIR/setup.conf"
@@ -1147,9 +1147,12 @@ do_update() {
     curl -fsSL --retry 3 "$SCRIPT_URL/vps-admin.sh" -o /tmp/vps-admin-new.sh 2>/dev/null
     curl -fsSL --retry 3 "$SCRIPT_URL/install.sh"   -o /tmp/vps-install-new.sh 2>/dev/null
 
-    # Download modules
+    # Download all modules
     mkdir -p /usr/local/bin/vps-modules
-    curl -fsSL --retry 3 "$SCRIPT_URL/modules/multi-ip.sh" -o /tmp/multi-ip-new.sh 2>/dev/null
+    local _modules=("multi-ip" "backup_split" "wp_auto_update" "resource_alert" "disk_cleanup" "ssh_key_manager" "domain_health" "wp_staging" "simple_analytics")
+    for _mod in "${_modules[@]}"; do
+        curl -fsSL --retry 3 "$SCRIPT_URL/modules/${_mod}.sh" -o "/tmp/${_mod}-new.sh" 2>/dev/null
+    done
 
     # Update admin panel
     if [ -f /tmp/vps-admin-new.sh ]; then
@@ -1167,15 +1170,21 @@ do_update() {
         log "✓ Installer updated"
     fi
 
-    # Update modules
-    if [ -f /tmp/multi-ip-new.sh ]; then
-        mv /tmp/multi-ip-new.sh /usr/local/bin/vps-modules/multi-ip.sh
-        chmod +x /usr/local/bin/vps-modules/multi-ip.sh
-        log "✓ Modules updated"
-    fi
+    # Update all modules
+    local _mod_updated=0
+    for _mod in "${_modules[@]}"; do
+        if [ -f "/tmp/${_mod}-new.sh" ]; then
+            mv "/tmp/${_mod}-new.sh" "/usr/local/bin/vps-modules/${_mod}.sh"
+            chmod +x "/usr/local/bin/vps-modules/${_mod}.sh"
+            ((_mod_updated++))
+        fi
+    done
+    [ $_mod_updated -gt 0 ] && log "✓ ${_mod_updated} modules updated"
 
     # Write REMOTE version (not stale local $VERSION)
     echo "$remote_ver" > "$VERSION_FILE"
+    # Also update local variable so subsequent calls show correct version
+    VERSION="$remote_ver"
 
     # Run audit to find missing components
     run_audit
@@ -1195,9 +1204,10 @@ do_update() {
     save_component_state
 
     echo ""
-    echo -e "${GREEN}╔═══════════════════════════════════════════╗${NC}"
-    echo -e "${GREEN}║   ✅ UPDATE COMPLETE! v${remote_ver}             ║${NC}"
-    echo -e "${GREEN}╚═══════════════════════════════════════════╝${NC}"
+    echo -e "${GREEN}╔══════════════════════════════════════════════════╗${NC}"
+    echo -e "${GREEN}║   ✅ UPDATE COMPLETE!                             ║${NC}"
+    echo -e "${GREEN}║   Version: ${remote_ver}  (${_mod_updated} modules updated)       ║${NC}"
+    echo -e "${GREEN}╚══════════════════════════════════════════════════╝${NC}"
     echo ""
 }
 
@@ -1206,7 +1216,8 @@ save_component_state() {
     local components=("nginx" "php" "mariadb" "redis" "fail2ban" "certbot" "wp-cli" "firewall" "waf" "vps-admin" "backup-system" "monitoring" "security-headers" "opcache")
 
     echo "{" > "$COMPONENTS_FILE"
-    echo "  \"version\": \"$VERSION\"," >> "$COMPONENTS_FILE"
+    local _save_ver=$(cat "$VERSION_FILE" 2>/dev/null || echo "$VERSION")
+    echo "  \"version\": \"$_save_ver\"," >> "$COMPONENTS_FILE"
     echo "  \"updated\": \"$(date -Iseconds)\"," >> "$COMPONENTS_FILE"
     echo "  \"os\": \"$(detect_os)\"," >> "$COMPONENTS_FILE"
     echo "  \"panels\": \"$(detect_existing_panels)\"," >> "$COMPONENTS_FILE"
@@ -1234,10 +1245,11 @@ save_component_state() {
 # ============================================
 
 show_banner() {
+    local _disp_ver=$(cat "$VERSION_FILE" 2>/dev/null || echo "$VERSION")
     echo ""
     echo -e "${BLUE}╔═══════════════════════════════════════════════╗${NC}"
     echo -e "${BLUE}║                                               ║${NC}"
-    echo -e "${BLUE}║   ${BOLD}VPS 1 Chạm — Smart Installer v${VERSION}${NC}${BLUE}       ║${NC}"
+    echo -e "${BLUE}║   ${BOLD}VPS 1 Chạm — Smart Installer v${_disp_ver}${NC}${BLUE}       ║${NC}"
     echo -e "${BLUE}║   https://qltro.com/vps                       ║${NC}"
     echo -e "${BLUE}║                                               ║${NC}"
     echo -e "${BLUE}╚═══════════════════════════════════════════════╝${NC}"
