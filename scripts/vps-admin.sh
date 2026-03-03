@@ -3,6 +3,10 @@
 #  VPS Admin Panel (HocVPS-style interactive menu)
 #  Usage: vps-admin (or just type 'vps-admin' anywhere)
 # ================================================================
+set -uo pipefail
+readonly VER="2.5.0"
+export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+export LC_ALL=C
 
 source /root/.vps-config/setup.conf 2>/dev/null
 
@@ -290,13 +294,18 @@ pick_domain() {
 
 header() {
     clear
+    local _cpu=$(nproc 2>/dev/null || echo "?")
+    local _load=$(cat /proc/loadavg 2>/dev/null | awk '{print $1, $2, $3}')
+    local _os=$(. /etc/os-release 2>/dev/null && echo "$PRETTY_NAME" || uname -s)
     echo -e "${CYAN}╔══════════════════════════════════════════════╗${NC}"
-    echo -e "${CYAN}║${WHITE}${BOLD}         VPS ADMIN PANEL - $VPS_NAME          ${NC}${CYAN}║${NC}"
+    echo -e "${CYAN}║${WHITE}${BOLD}     ⚡ VPS ADMIN PANEL v${VER} — $VPS_NAME      ${NC}${CYAN}║${NC}"
     echo -e "${CYAN}╠══════════════════════════════════════════════╣${NC}"
-    echo -e "${CYAN}║${NC} IP: ${GREEN}$SERVER_IP${NC}  |  $(uptime -p | head -c 30)"
-    echo -e "${CYAN}║${NC} RAM: $(free -h | awk '/Mem/{printf "%s/%s (%s)", $3, $2, int($3/$2*100)"%"}')"
-    echo -e "${CYAN}║${NC} Disk: $(df -h / | awk 'NR==2{printf "%s/%s (%s)", $3, $2, $5}')"
-    echo -e "${CYAN}║${NC} PHP: $(php -v 2>/dev/null | head -1 | awk '{print $2}')  |  Nginx: $(nginx -v 2>&1 | awk -F'/' '{print $2}')"
+    echo -e "${CYAN}║${NC} 🖥  ${GREEN}$_os${NC}"
+    echo -e "${CYAN}║${NC} 🌐 IP: ${GREEN}$SERVER_IP${NC}  |  ⏱ $(uptime -p 2>/dev/null | head -c 35)"
+    echo -e "${CYAN}║${NC} 💾 RAM: $(free -h | awk '/Mem/{printf "%s/%s (%s)", $3, $2, int($3/$2*100)"%"}')"
+    echo -e "${CYAN}║${NC} 💿 Disk: $(df -h / | awk 'NR==2{printf "%s/%s (%s)", $3, $2, $5}')"
+    echo -e "${CYAN}║${NC} 🔧 CPU: ${_cpu} cores  |  Load: ${_load}"
+    echo -e "${CYAN}║${NC} 📦 PHP: $(php -v 2>/dev/null | head -1 | awk '{print $2}')  |  Nginx: $(nginx -v 2>&1 | awk -F'/' '{print $2}')"
     echo -e "${CYAN}╚══════════════════════════════════════════════╝${NC}"
     echo ""
 }
@@ -382,6 +391,17 @@ show_detail() {
 
 show_main_menu() {
     header
+    # ── Website Listing ──
+    _load_domains
+    if [ ${#_domain_list[@]} -gt 0 ]; then
+        echo -e "  ${WHITE}${BOLD}🌐 WordPress Sites (${#_domain_list[@]}):${NC}"
+        for _d in "${_domain_list[@]}"; do
+            local _ssl=""
+            [ -f "/etc/letsencrypt/live/$_d/fullchain.pem" ] && _ssl="${GREEN}🔒${NC}" || _ssl="${RED}⚠${NC}"
+            echo -e "     $_ssl ${CYAN}$_d${NC}"
+        done
+        echo -e "  ${WHITE}─────────────────────────────────${NC}"
+    fi
     echo -e "${WHITE}${BOLD}  $MSG_MAIN_MENU${NC}"
     echo -e "${GREEN}  ─────────────────────────────────${NC}"
     echo -e "  ${CYAN}1.${NC} $MSG_MENU_WEBSITE"
