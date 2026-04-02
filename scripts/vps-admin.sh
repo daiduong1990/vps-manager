@@ -424,7 +424,7 @@ show_main_menu() {
     echo -e "  ${YELLOW}13.${NC} 🌍 Change Language"
     echo -e "  ${GREEN}14.${NC} 🛡️  Omni-Shield (BBR+Swap+Firewall+F2B)"
     echo -e "  ${GREEN}15.${NC} 🗃️  Redis Cache Manager (WordPress)"
-    echo -e "  echo -e "  ${GREEN}15.${NC} 🗃️  Redis Cache Manager (WordPress)"{GREEN}16.echo -e "  ${GREEN}15.${NC} 🗃️  Redis Cache Manager (WordPress)"{NC} 🧹  Trình Dọn Dẹp & Tối Ưu Hệ Thống"
+    echo -e "  ${GREEN}16.${NC} 🧹  Trình Dọn Dẹp & Tối Ưu Hệ Thống"
     echo -e "  ${RED}0.${NC} $MSG_MENU_EXIT"
     echo -e "  ${WHITE}─────────────────────────────────${NC}"
     echo -e "  ${WHITE}$MSG_DETAIL_HINT${NC}"
@@ -1782,11 +1782,10 @@ while true; do
         13) change_language ;;
         14) if type menu_omni_shield &>/dev/null; then menu_omni_shield; else echo -e "${RED}  Module not loaded. Run: vps-update update${NC}"; sleep 2; fi ;;
         15) if type menu_redis_cache &>/dev/null; then menu_redis_cache; else echo -e "${RED}  Module not loaded. Run: vps-update update${NC}"; sleep 2; fi ;;
-        16) if type menu_system_cleaner &>/dev/null; then menu_system_cleaner; else echo -e "15) if type menu_redis_cache &>/dev/null; then menu_redis_cache; else echo -e "${RED}  Module not loaded. Run: vps-update update${NC}"; sleep 2; fi ;;{RED}  Module not loaded. Run: vps-update update15) if type menu_redis_cache &>/dev/null; then menu_redis_cache; else echo -e "${RED}  Module not loaded. Run: vps-update update${NC}"; sleep 2; fi ;;{NC}"; sleep 2; fi ;;
+        16) if type menu_system_cleaner &>/dev/null; then menu_system_cleaner; else echo -e "${RED}  Module not loaded. Run: vps-update update${NC}"; sleep 2; fi ;;
         "?") show_detail main ;;
         *\?) show_detail main "${CHOICE%?}" ;;
         0) echo -e "${GREEN}  Bye!${NC}"; exit 0 ;;
         *) echo -e "${RED}  $MSG_INVALID${NC}"; sleep 1 ;;
     esac
 done
-
