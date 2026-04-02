@@ -171,8 +171,7 @@ for _mod in /usr/local/bin/vps-modules/backup_split.sh \
             /usr/local/bin/vps-modules/wp_staging.sh \
             /usr/local/bin/vps-modules/simple_analytics.sh \
             /usr/local/bin/vps-modules/omni_shield.sh \
-            /usr/local/bin/vps-modules/redis_cache.sh \
-            /usr/local/bin/vps-modules/system_cleaner.sh; do
+            /usr/local/bin/vps-modules/redis_cache.sh; do
     [ -f "$_mod" ] && source "$_mod"
 done
 unset _mod
@@ -424,12 +423,11 @@ show_main_menu() {
     echo -e "  ${YELLOW}13.${NC} 🌍 Change Language"
     echo -e "  ${GREEN}14.${NC} 🛡️  Omni-Shield (BBR+Swap+Firewall+F2B)"
     echo -e "  ${GREEN}15.${NC} 🗃️  Redis Cache Manager (WordPress)"
-    echo -e "  ${GREEN}16.${NC} 🧹  Trình Dọn Dẹp & Tối Ưu Hệ Thống"
     echo -e "  ${RED}0.${NC} $MSG_MENU_EXIT"
     echo -e "  ${WHITE}─────────────────────────────────${NC}"
     echo -e "  ${WHITE}$MSG_DETAIL_HINT${NC}"
     echo ""
-    read -p "  $MSG_SELECT [0-16]: " CHOICE
+    read -p "  $MSG_SELECT [0-15]: " CHOICE
 }
 
 # ---- 1. WEBSITE MANAGEMENT ----
@@ -1756,8 +1754,7 @@ if [ -n "$1" ]; then
         cleanup) type menu_disk_cleanup &>/dev/null && menu_disk_cleanup; exit ;;
         shield) type menu_omni_shield &>/dev/null && menu_omni_shield; exit ;;
         redis) type menu_redis_cache &>/dev/null && menu_redis_cache; exit ;;
-        clean|cleaner) type menu_system_cleaner &>/dev/null && menu_system_cleaner; exit ;;
-        *) echo "Usage: vps-admin [status|speed|backup|backup-split|update|wp-update|script-update|malware-scan|cluster-sync|resource-check|health|analytics|cleanup|shield|redis|clean]"; exit ;;
+        *) echo "Usage: vps-admin [status|speed|backup|backup-split|update|wp-update|script-update|malware-scan|cluster-sync|resource-check|health|analytics|cleanup|shield|redis]"; exit ;;
     esac
 fi
 
@@ -1782,7 +1779,6 @@ while true; do
         13) change_language ;;
         14) if type menu_omni_shield &>/dev/null; then menu_omni_shield; else echo -e "${RED}  Module not loaded. Run: vps-update update${NC}"; sleep 2; fi ;;
         15) if type menu_redis_cache &>/dev/null; then menu_redis_cache; else echo -e "${RED}  Module not loaded. Run: vps-update update${NC}"; sleep 2; fi ;;
-        16) if type menu_system_cleaner &>/dev/null; then menu_system_cleaner; else echo -e "${RED}  Module not loaded. Run: vps-update update${NC}"; sleep 2; fi ;;
         "?") show_detail main ;;
         *\?) show_detail main "${CHOICE%?}" ;;
         0) echo -e "${GREEN}  Bye!${NC}"; exit 0 ;;
