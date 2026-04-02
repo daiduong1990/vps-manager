@@ -1,4 +1,4 @@
-﻿#!/bin/bash
+#!/bin/bash
 # ================================================================
 #  VPS Admin Panel (HocVPS-style interactive menu)
 #  Usage: vps-admin (or just type 'vps-admin' anywhere)
@@ -171,7 +171,7 @@ for _mod in /usr/local/bin/vps-modules/backup_split.sh \
             /usr/local/bin/vps-modules/wp_staging.sh \
             /usr/local/bin/vps-modules/simple_analytics.sh \
             /usr/local/bin/vps-modules/omni_shield.sh \
-            /usr/local/bin/vps-modules/redis_cache.sh; do
+            /usr/local/bin/vps-modules/redis_cache.sh \
             /usr/local/bin/vps-modules/system_cleaner.sh; do
     [ -f "$_mod" ] && source "$_mod"
 done
